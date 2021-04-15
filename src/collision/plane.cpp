@@ -12,7 +12,29 @@ using namespace CGL;
 
 void Plane::collide(PointMass &pm) {
   // TODO (Part 3): Handle collisions with planes.
+    // vector from the point on the plane to the pointmass on the cloth at current time
+    Vector3D vector_curr = pm.position - point;
+    // V * N > 0 then before crossing the plane 
+    // V * N < 0 then after crossing the plane 
+    // V * N = 0 then at the plane 
+    double curr_eval = dot(vector_curr, normal);
 
+    Vector3D vector_before = pm.last_position - point;
+    double before_eval = dot(vector_before, normal);
+
+    if ((curr_eval <= 0 && before_eval >= 0) || (curr_eval >= 0 && before_eval <= 0)) {
+        //point on the plane closest to pm.position
+        Vector3D tangent_point = pm.position - dot(normal.unit(), vector_curr) * normal.unit();
+        Vector3D correction = tangent_point - pm.last_position;
+
+        if (dot(vector_before, normal) >= 0) {
+            correction = correction + normal * SURFACE_OFFSET ;
+        }
+        else {
+            correction = correction - normal * SURFACE_OFFSET ;
+        }
+        pm.position = pm.last_position + (1 - friction) * correction;
+    }
 }
 
 void Plane::render(GLShader &shader) {

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(ClothSim)
 
+find_package(OpenMP)
+
 #-------------------------------------------------------------------------------
 # Build options
 #-------------------------------------------------------------------------------
@@ -136,8 +138,11 @@ if(WIN32)
     else(BUILD_DEBUG)
         set(CMAKE_BUILD_TYPE Release)
     endif(BUILD_DEBUG)
-
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_CXX_FLAGS}")
+    
+    if (OPENMP_FOUND)
+        message("openmp found")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_CXX_FLAGS} /openmp") # added /openmp
+    endif()
     
   endif(MSVC)
 

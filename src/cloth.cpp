@@ -141,17 +141,20 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 
   //or you can do point_masses.size()
   Vector3D external_force = Vector3D(0, 0, 0);
+#pragma omp parallel for  
   for (int i = 0; i < external_accelerations.size(); i++) {
       external_force += external_accelerations[i] * mass;
   }
 
   int num_masses = point_masses.size();
+#pragma omp parallel for 
   for (int i = 0; i < num_masses; i++) {
         //int position = num_width_points * i + j;
         PointMass* pm_center = &point_masses[i];
         pm_center->forces = external_force;
   }
 
+#pragma omp parallel for 
   for (int i = 0; i < springs.size(); i++) {
       Spring spring = springs[i];
 
@@ -178,6 +181,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   }
 
   // TODO (Part 2): Use Verlet integration to compute new point mass positions
+#pragma omp parallel for 
   for (int i = 0; i < num_height_points; i++) {
       for (int j = 0; j < num_width_points; j++) {
           int position = num_width_points * i + j;
@@ -198,12 +202,14 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 
   // TODO (Part 4): Handle self-collisions.
   build_spatial_map();
+#pragma omp parallel for 
   for (int i = 0; i < point_masses.size(); i++) {
       self_collide(point_masses[i], simulation_steps);
   }
 
 
   // TODO (Part 3): Handle collisions with other primitives.
+#pragma omp parallel for 
   for (int i = 0; i < point_masses.size(); i++) {
       for (CollisionObject* object : *collision_objects) {
           object->collide(point_masses[i]);
@@ -213,6 +219,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 
   // TODO (Part 2): Constrain the changes to be such that the spring does not change
   // in length more than 10% per timestep [Provot 1995].
+#pragma omp parallel for 
   for (int i = 0; i < springs.size(); i++) {
       Spring spring = springs[i];
       Vector3D dist_vector = spring.pm_a->position - spring.pm_b->position;

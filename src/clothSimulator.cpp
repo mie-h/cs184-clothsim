@@ -15,6 +15,7 @@
 // Needed to generate stb_image binaries. Should only define in exactly one source file importing stb_image.h.
 #define STB_IMAGE_IMPLEMENTATION
 #include "misc/stb_image.h"
+#include "omp.h"
 
 using namespace nanogui;
 using namespace std;
@@ -237,6 +238,8 @@ void ClothSimulator::init() {
 }
 
 bool ClothSimulator::isAlive() { return is_alive; }
+
+bool ClothSimulator::isPaused() { return is_paused; }
 
 void ClothSimulator::drawContents() {
   glEnable(GL_DEPTH_TEST);
